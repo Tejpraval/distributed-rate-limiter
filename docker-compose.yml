@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: rate-limiter-redis
+    ports:
+      - "6379:6379"
+    restart: always
+
+  api:
+    build: 
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: rate-limiter-api
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./Backend/.env
+    environment:
+      # This overrides the mapped REDIS_HOST in .env and tells Node to connect to the 'redis' container
+      - REDIS_HOST=redis
+    depends_on:
+      - redis
+    restart: on-failure
