@@ -1,7 +1,14 @@
 import type { Request, Response, NextFunction } from 'express';
+import * as promClient from 'prom-client';
 import redisClient from '../redisClient';
 import { User } from '../models/User';
 import { RequestLog } from '../models/RequestLog';
+
+export const rateLimitCounter = new promClient.Counter({
+    name: 'rate_limit_requests_total',
+    help: 'Total number of rate limit evaluations',
+    labelNames: ['tier', 'status']
+});
 
 const LIMITS = {
     basic: 100, // 100 requests per minute
@@ -86,6 +93,9 @@ export const tokenBucketRateLimiter = async (req: Request, res: Response, next: 
         const isAllowed = result[0] === 1;
         const remainingTokens = result[1];
         const statusCode = isAllowed ? 200 : 429;
+
+        // Increment Prometheus metric
+        rateLimitCounter.inc({ tier, status: isAllowed ? 'allowed' : 'rejected' });
 
         // Asynchronous DB log
         RequestLog.create({

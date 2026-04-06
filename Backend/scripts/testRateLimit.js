@@ -1,17 +1,18 @@
 const http = require('http');
 
-const TOTAL_REQUESTS = 120;
-const HOST = 'localhost';
+const HOST = process.argv[2] || 'localhost';
+const API_KEY = process.argv[3] || 'test-basic-key';
+const TOTAL_REQUESTS = 150; // Set to 150 to guarantee we trip the basic limit (100)
 const PORT = 3000;
 const PATH = '/api/test';
-
-const API_KEY = 'test-basic-key';
 
 let completed = 0;
 let successCount = 0;
 let rateLimitedCount = 0;
 
-console.log(`Starting load test for Phase 2. Sending ${TOTAL_REQUESTS} requests with API Key ${API_KEY}...`);
+console.log(`Starting validation test on ${HOST}:${PORT}`);
+console.log(`Sending ${TOTAL_REQUESTS} concurrent requests with API Key: ${API_KEY}`);
+console.log('---');
 
 for (let i = 0; i < TOTAL_REQUESTS; i++) {
     const req = http.request({
