@@ -8,6 +8,7 @@
     "start:prod": "node dist/index.js",
     "dev": "ts-node-dev src/index.ts",
     "build": "tsc",
+    "test": "jest",
     "test-rate-limit": "node scripts/testRateLimit.js"
   },
   "keywords": [],
@@ -31,9 +32,12 @@
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/mongoose": "^5.11.96",
     "@types/node": "^25.5.2",
+    "jest": "^30.4.2",
+    "ts-jest": "^29.4.9",
     "ts-node-dev": "^2.0.0",
     "typescript": "^6.0.2"
   }

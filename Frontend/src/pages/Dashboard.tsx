@@ -9,18 +9,21 @@ import type { SummaryStats, TrafficData } from '../types';
 export const Dashboard: React.FC = () => {
     const [stats, setStats] = useState<SummaryStats | null>(null);
     const [traffic, setTraffic] = useState<TrafficData[]>([]);
+    const [topConsumers, setTopConsumers] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
-                const [summaryRes, trafficRes] = await Promise.all([
+                const [summaryRes, trafficRes, topRes] = await Promise.all([
                     api.get('/analytics/summary'),
-                    api.get('/analytics/traffic')
+                    api.get('/analytics/traffic'),
+                    api.get('/analytics/top-consumers').catch(() => ({ data: { topConsumers: [] } })) // Fallback if not admin
                 ]);
                 
                 setStats(summaryRes.data.summary);
                 setTraffic(trafficRes.data.traffic);
+                setTopConsumers(topRes.data.topConsumers);
             } catch (error) {
                 console.error("Failed to fetch dashboard data");
             } finally {
@@ -103,6 +106,41 @@ export const Dashboard: React.FC = () => {
                     </ResponsiveContainer>
                 </ChartCard>
             </div>
+
+            {/* Top Consumers Table */}
+            {topConsumers.length > 0 && (
+                <div className="bg-slate-800 p-6 rounded-xl border border-slate-700 shadow-sm mt-6">
+                    <h3 className="text-lg font-semibold text-slate-100 mb-4">Top API Keys by Usage</h3>
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left text-slate-300">
+                            <thead className="text-xs uppercase text-slate-400 border-b border-slate-700">
+                                <tr>
+                                    <th className="px-4 py-3">Key Name</th>
+                                    <th className="px-4 py-3">Environment</th>
+                                    <th className="px-4 py-3">User</th>
+                                    <th className="px-4 py-3">Tier</th>
+                                    <th className="px-4 py-3 text-right">Total Requests</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {topConsumers.map((consumer) => (
+                                    <tr key={consumer._id} className="border-b border-slate-700/50 hover:bg-slate-700/30 transition-colors">
+                                        <td className="px-4 py-3 font-medium text-slate-200">{consumer.name}</td>
+                                        <td className="px-4 py-3">
+                                            <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${consumer.environment === 'live' ? 'bg-emerald-500/10 text-emerald-400' : 'bg-amber-500/10 text-amber-400'}`}>
+                                                {consumer.environment.toUpperCase()}
+                                            </span>
+                                        </td>
+                                        <td className="px-4 py-3">{consumer.userId?.email || 'N/A'}</td>
+                                        <td className="px-4 py-3 capitalize">{consumer.userId?.tier || 'N/A'}</td>
+                                        <td className="px-4 py-3 text-right font-mono font-bold text-primary">{consumer.totalRequests.toLocaleString()}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
