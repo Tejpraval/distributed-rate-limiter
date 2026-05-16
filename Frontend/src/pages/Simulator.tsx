@@ -26,13 +26,15 @@ export const Simulator: React.FC = () => {
         const id = reqIdRef.current;
         
         try {
-            const res = await api.get('/external/test', {
+            await api.get('/external/test', {
                 headers: { 'x-api-key': apiKey.trim() }
             });
-            setResults(prev => [{ id, status: res.status, timestamp: Date.now() }, ...prev].slice(0, 50));
+            // api interceptor returns response.data directly on success
+            setResults(prev => [{ id, status: 200, timestamp: Date.now() }, ...prev].slice(0, 50));
             setAllowed(prev => prev + 1);
         } catch (error: any) {
-            const status = error.response?.status || 500;
+            // api interceptor normalizes error to { status, message, raw }
+            const status = error.status || 500;
             setResults(prev => [{ id, status, timestamp: Date.now() }, ...prev].slice(0, 50));
             if (status === 429) {
                 setBlocked(prev => prev + 1);

@@ -78,9 +78,9 @@ export const ApiKeys: React.FC = () => {
         { header: 'Total Requests', accessor: (row: ApiKey) => (row.totalRequests || 0).toLocaleString() },
         { 
             header: 'Actions', 
-            accessor: (row: ApiKey) => (
+            accessor: (row: any) => (
                 <button 
-                    onClick={() => handleRevoke(row.id)}
+                    onClick={() => handleRevoke(row._id || row.id)}
                     className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-400/10 rounded transition-colors"
                     title="Revoke Key"
                 >
@@ -178,7 +178,7 @@ export const ApiKeys: React.FC = () => {
             {isLoading ? (
                 <div className="h-48 flex items-center justify-center text-slate-400">Loading keys...</div>
             ) : (
-                <Table data={keys} columns={columns} keyExtractor={(row) => row.id} />
+                <Table data={keys} columns={columns} keyExtractor={(row: any) => row._id || row.id} />
             )}
         </div>
     );
