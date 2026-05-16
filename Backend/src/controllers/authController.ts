@@ -43,9 +43,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
             token,
             user: { id: newUser._id, email: newUser.email, role: newUser.role, tier: newUser.tier }
         }, 'Registration successful', 201);
-    } catch (error) {
+    } catch (error: any) {
         console.error('Register error:', error);
-        sendError(res, 'Internal server error', 500);
+        sendError(res, `Internal server error: ${error.message || error}`, 500);
     }
 };
 
