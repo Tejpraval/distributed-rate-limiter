@@ -86,7 +86,7 @@ export const Users: React.FC = () => {
                     />
                     <select 
                         value={row.tier}
-                        onChange={(e) => updateTier(row.id, e.target.value as 'basic'|'premium')}
+                        onChange={(e) => updateTier((row as any)._id || row.id, e.target.value as 'basic'|'premium')}
                         className="bg-slate-900 border border-slate-700 rounded text-xs px-2 py-1 text-slate-300 outline-none"
                     >
                         <option value="basic">Basic (100 req/min)</option>
