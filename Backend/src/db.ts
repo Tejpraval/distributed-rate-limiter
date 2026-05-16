@@ -12,6 +12,14 @@ export const connectDB = async (): Promise<void> => {
 
         await mongoose.connect(uri);
         console.log('Successfully connected to MongoDB');
+        
+        // Drop old index if it exists (leftover from previous schema versions)
+        try {
+            await mongoose.connection.collection('users').dropIndex('apiKey_1');
+            console.log('Dropped old index apiKey_1');
+        } catch (err) {
+            // Ignore if index doesn't exist or was already dropped
+        }
     } catch (err) {
         console.error('MongoDB connection error:', err);
         // We do not want to exit immediately in a real fail-open setup if Mongo is purely for config
