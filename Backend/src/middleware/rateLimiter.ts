@@ -1,7 +1,8 @@
 import type { Request, Response, NextFunction } from 'express';
 import * as promClient from 'prom-client';
 import redisClient from '../redisClient';
-import { User } from '../models/User';
+import crypto from 'crypto';
+import { ApiKey } from '../models/ApiKey';
 import { RequestLog } from '../models/RequestLog';
 
 export const rateLimitCounter = new promClient.Counter({
@@ -54,8 +55,9 @@ export const tokenBucketRateLimiter = async (req: Request, res: Response, next: 
         return;
     }
 
-    const key = `rate_limit:user:${apiKey}`;
-    const userCacheKey = `user_tier:${apiKey}`;
+    const keyHash = crypto.createHash('sha256').update(apiKey).digest('hex');
+    const key = `rate_limit:user:${keyHash}`;
+    const userCacheKey = `user_tier:${keyHash}`;
 
     try {
         let tier: 'basic' | 'premium' = 'basic';
@@ -67,15 +69,21 @@ export const tokenBucketRateLimiter = async (req: Request, res: Response, next: 
             tier = cachedTier as 'basic' | 'premium';
             capacity = LIMITS[tier];
         } else {
-            const user = await User.findOne({ apiKey });
-            if (!user) {
-                res.status(401).json({ error: 'Unauthorized', message: 'Invalid API Key' });
+            const apiKeyRecord = await ApiKey.findOne({ keyHash, isActive: true, isRevoked: false }).populate<{userId: import('../models/User').IUser}>('userId');
+            if (!apiKeyRecord || !apiKeyRecord.userId) {
+                res.status(401).json({ error: 'Unauthorized', message: 'Invalid or revoked API Key' });
                 return;
             }
-            tier = user.tier;
+            tier = apiKeyRecord.userId.tier;
             capacity = LIMITS[tier];
             await redisClient.setex(userCacheKey, 600, tier);
         }
+
+        // Asynchronously update key metadata
+        ApiKey.findOneAndUpdate(
+            { keyHash },
+            { $inc: { totalRequests: 1 }, lastUsedAt: new Date() }
+        ).exec().catch(err => console.error('Failed to update key metadata:', err));
 
         const refillRatePerMs = capacity / WINDOW_TIME_MS;
         const currentTime = Date.now();
