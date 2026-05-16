@@ -20,8 +20,11 @@ export const Simulator: React.FC = () => {
 
     const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const reqIdRef = useRef(0);
+    const isRunningRef = useRef(false);
 
     const fireRequest = async () => {
+        if (!isRunningRef.current) return;
+        
         reqIdRef.current += 1;
         const id = reqIdRef.current;
         
@@ -29,11 +32,14 @@ export const Simulator: React.FC = () => {
             await api.get('/external/test', {
                 headers: { 'x-api-key': apiKey.trim() }
             });
-            // api interceptor returns response.data directly on success
+            
+            if (!isRunningRef.current) return;
+            
             setResults(prev => [{ id, status: 200, timestamp: Date.now() }, ...prev].slice(0, 50));
             setAllowed(prev => prev + 1);
         } catch (error: any) {
-            // api interceptor normalizes error to { status, message, raw }
+            if (!isRunningRef.current) return;
+            
             const status = error.status || 500;
             setResults(prev => [{ id, status, timestamp: Date.now() }, ...prev].slice(0, 50));
             if (status === 429) {
@@ -48,9 +54,11 @@ export const Simulator: React.FC = () => {
             return;
         }
         if (isRunning) {
+            isRunningRef.current = false;
             if (intervalRef.current) clearInterval(intervalRef.current);
             setIsRunning(false);
         } else {
+            isRunningRef.current = true;
             setIsRunning(true);
             const intervalMs = 1000 / rps;
             intervalRef.current = setInterval(fireRequest, intervalMs);

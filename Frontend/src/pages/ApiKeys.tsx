@@ -56,7 +56,21 @@ export const ApiKeys: React.FC = () => {
 
     const copyToClipboard = () => {
         if (createdRawKey) {
-            navigator.clipboard.writeText(createdRawKey);
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(createdRawKey);
+            } else {
+                // Fallback for non-HTTPS environments where navigator.clipboard is disabled
+                const textArea = document.createElement("textarea");
+                textArea.value = createdRawKey;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                } catch (err) {
+                    console.error('Fallback copy failed', err);
+                }
+                document.body.removeChild(textArea);
+            }
             setCopied(true);
             setTimeout(() => setCopied(false), 2000);
         }
