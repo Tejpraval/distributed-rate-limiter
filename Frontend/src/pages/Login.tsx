@@ -23,6 +23,7 @@ export const Login: React.FC = () => {
 
         try {
             const response = await api.post('/auth/login', { email, password });
+            localStorage.setItem('token', response.data.token);
             login(response.data.user);
             navigate('/');
         } catch (err: any) {

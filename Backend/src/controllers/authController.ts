@@ -40,6 +40,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         res.cookie('token', token, cookieOptions);
 
         sendSuccess(res, {
+            token,
             user: { id: newUser._id, email: newUser.email, role: newUser.role, tier: newUser.tier }
         }, 'Registration successful', 201);
     } catch (error) {
@@ -68,6 +69,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         res.cookie('token', token, cookieOptions);
 
         sendSuccess(res, {
+            token,
             user: { id: user._id, email: user.email, role: user.role, tier: user.tier }
         }, 'Login successful');
     } catch (error) {
