@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { ChartCard } from '../components/ChartCard';
 import { StatusBadge } from '../components/StatusBadge';
 import { Activity, Database, Server, RefreshCw } from 'lucide-react';
 import api from '../services/api';
