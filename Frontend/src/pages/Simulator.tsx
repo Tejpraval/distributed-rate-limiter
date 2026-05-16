@@ -27,7 +27,7 @@ export const Simulator: React.FC = () => {
         
         try {
             const res = await api.get('/external/test', {
-                headers: { 'x-api-key': apiKey }
+                headers: { 'x-api-key': apiKey.trim() }
             });
             setResults(prev => [{ id, status: res.status, timestamp: Date.now() }, ...prev].slice(0, 50));
             setAllowed(prev => prev + 1);
@@ -41,7 +41,7 @@ export const Simulator: React.FC = () => {
     };
 
     const toggleSimulation = () => {
-        if (!apiKey) {
+        if (!apiKey.trim()) {
             alert('Please enter an API Key first.');
             return;
         }
@@ -92,7 +92,7 @@ export const Simulator: React.FC = () => {
                             onChange={(e) => setApiKey(e.target.value)}
                             disabled={isRunning}
                             placeholder="rl_test_..."
-                            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-slate-100 focus:outline-none focus:border-primary disabled:opacity-50"
+                            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-4 py-2 text-slate-100 focus:outline-none focus:border-primary disabled:opacity-50 font-mono text-sm"
                         />
                     </div>
 
@@ -162,16 +162,16 @@ export const Simulator: React.FC = () => {
                                 <span className="text-slate-600 italic">Waiting for simulation to start...</span>
                             ) : (
                                 results.map(r => (
-                                    <div key={r.id} className="flex gap-4 border-b border-slate-800/50 pb-1">
+                                    <div key={r.id} className="flex gap-4 border-b border-slate-800/50 pb-1 pr-2">
                                         <span className="text-slate-500">[{new Date(r.timestamp).toISOString().split('T')[1].slice(0,-1)}]</span>
-                                        <span className="text-slate-400">REQ #{r.id.toString().padStart(4, '0')}</span>
-                                        <span className="flex-1">GET /api/external/test</span>
+                                        <span className="text-slate-400 shrink-0">REQ #{r.id.toString().padStart(4, '0')}</span>
+                                        <span className="flex-1 truncate">GET /api/external/test</span>
                                         {r.status === 200 ? (
-                                            <span className="text-emerald-400 font-bold">200 OK</span>
+                                            <span className="text-emerald-400 font-bold shrink-0">200 OK</span>
                                         ) : r.status === 429 ? (
-                                            <span className="text-rose-400 font-bold w-20 text-right">429 LIMIT</span>
+                                            <span className="text-rose-400 font-bold shrink-0">429 LIMIT</span>
                                         ) : (
-                                            <span className="text-amber-400 font-bold w-20 text-right">{r.status} ERR</span>
+                                            <span className="text-amber-400 font-bold shrink-0">{r.status} ERR</span>
                                         )}
                                     </div>
                                 ))
