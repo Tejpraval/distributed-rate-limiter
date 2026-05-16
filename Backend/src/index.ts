@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import * as promClient from 'prom-client';
 import { connectDB } from './db';
 import { tokenBucketRateLimiter } from './middleware/rateLimiter';
@@ -23,6 +24,10 @@ connectDB();
 const app = express();
 const port = process.env.PORT || 3000;
 
+app.use(cors({
+    origin: true, // Allows request from any origin (e.g. S3 frontend) and matches it
+    credentials: true // Crucial for HttpOnly cookies
+}));
 app.use(express.json());
 app.use(cookieParser());
 
