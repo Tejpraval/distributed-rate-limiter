@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Play, Square, Settings, AlertTriangle, CheckCircle2 } from 'lucide-react';
-import axios from 'axios';
+import api from '../services/api';
 
 interface RequestResult {
     id: number;
@@ -26,7 +26,7 @@ export const Simulator: React.FC = () => {
         const id = reqIdRef.current;
         
         try {
-            const res = await axios.get('/api/external/test', {
+            const res = await api.get('/external/test', {
                 headers: { 'x-api-key': apiKey }
             });
             setResults(prev => [{ id, status: res.status, timestamp: Date.now() }, ...prev].slice(0, 50));
