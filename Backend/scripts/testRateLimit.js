@@ -4,7 +4,8 @@ const HOST = process.argv[2] || 'localhost';
 const API_KEY = process.argv[3] || 'test-basic-key';
 const TOTAL_REQUESTS = 150; // Set to 150 to guarantee we trip the basic limit (100)
 const PORT = 3000;
-const PATH = '/api/test';
+const PATH = '/api/external/test';
+
 
 let completed = 0;
 let successCount = 0;
