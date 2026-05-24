@@ -1,6 +1,6 @@
 const http = require('http');
 
-const HOST = process.argv[2] || 'localhost';
+const HOST = process.argv[2] || 'localhost';  // Read '3.6.86.173' from terminal
 const API_KEY = process.argv[3] || 'test-basic-key';
 const TOTAL_REQUESTS = 150; // Set to 150 to guarantee we trip the basic limit (100)
 const PORT = 3000;
@@ -17,7 +17,7 @@ console.log('---');
 
 for (let i = 0; i < TOTAL_REQUESTS; i++) {
     const req = http.request({
-        host: HOST,
+        host: HOST, // Opens connection directly to your remote AWS server
         port: PORT,
         path: PATH,
         method: 'GET',
