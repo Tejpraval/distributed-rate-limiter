@@ -20,6 +20,7 @@ services:
     environment:
       # This overrides the mapped REDIS_HOST in .env and tells Node to connect to the 'redis' container
       - REDIS_HOST=redis
+      - REDIS_URL=redis://redis:6379
     depends_on:
       - redis
     restart: on-failure
